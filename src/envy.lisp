@@ -34,8 +34,9 @@
          (package-name (package-name package))
          (env-var (config-env-var package-name)))
     (unless env-var
-      (error "Package \"~A\" is not configured. Set config-env-var."
-             package-name))
+      (error "Package \"~A\" is not configured. Set which environment variable to determine a configuration by using ~S."
+             package-name
+             'config-env-var))
     (let ((env (asdf::getenv env-var)))
       (if env
           (let ((symbol (find-symbol env package)))
