@@ -18,11 +18,13 @@ Configuration switcher by an environment variable inspired by Perl's [Config::EN
 (defconfig |development|
   '(:debug T
     :database-type :sqlite3
-    :database-connection-spec '(:database-name "sqlite3.db")))
+    :database-connection-spec (:database-name "sqlite3.db")))
 
 (defconfig |production|
   '(:database-type :mysql
-    :database-connection-spec '()))
+    :database-connection-spec (:database-name "test"
+                               :usename "whoami"
+                               :password "1234")))
 
 (defconfig |staging|
   `(:debug T
@@ -60,15 +62,15 @@ Don't forget to set `(ENVY:CONFIG-ENV-VAR)` which is a name of environment varia
 (defconfig |development|
   '(:server :hunchentoot
     :database-type :sqlite3
-    :database-connection-spec '(:database-name "sqlite3.db")))
+    :database-connection-spec (:database-name "sqlite3.db")))
 
 ;; Use MySQL in production environment
 (defconfig |production|
   '(:server :fcgi
     :database-type :mysql
-    :database-connection-spec '(:database-name "test"
-                                :usename "whoami"
-                                :password "1234")))
+    :database-connection-spec (:database-name "test"
+                               :usename "whoami"
+                               :password "1234")))
 ```
 
 ### Merging
@@ -100,7 +102,7 @@ You can also define a common configuration which will be merged into every confi
 (config :myapp.config)
 ;=> '(:server :hunchentoot
       :database-type :sqlite3
-      :database-connection-spec '(:database-name "sqlite3.db")
+      :database-connection-spec (:database-name "sqlite3.db")
       :application-root #P"/path/to/application/")
 
 (getf (config :myapp.config) :database-type)
