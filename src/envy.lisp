@@ -29,7 +29,7 @@
          (defparameter ,name ,configurations)
          (setf (get ',name 'configurationp) t))))
 
-(defun config (package-name)
+(defun package-config (package-name)
   (let* ((package (find-package package-name))
          (package-name (package-name package))
          (env-var (config-env-var package-name)))
@@ -43,8 +43,12 @@
             (if (and symbol
                      (get symbol 'configurationp)
                      (boundp symbol))
-                (values (append (symbol-value symbol)
-                                (gethash package-name *package-common-configurations* nil))
-                        t)
-                (values nil nil)))
-          (values nil nil)))))
+                (append (symbol-value symbol)
+                        (gethash package-name *package-common-configurations* nil))
+                nil))
+          nil))))
+
+(defun config (package-name &optional key)
+  (if key
+      (getf (package-config package-name) key)
+      (package-config package-name)))
