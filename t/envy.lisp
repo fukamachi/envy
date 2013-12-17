@@ -8,7 +8,8 @@
   (:use :cl)
   (:import-from :envy
                 :config-env-var
-                :defconfig))
+                :defconfig
+                :env-var))
 (in-package :envy.myapp.config)
 
 (setf (config-env-var) "APP_ENV")
@@ -33,10 +34,7 @@
 (defpackage envy-test
   (:use :cl
         :envy
-        :cl-test-more)
-  (:import-from :osicat
-                :environment-variable
-                :makunbound-environment-variable))
+        :cl-test-more))
 (in-package :envy-test)
 
 (plan 9)
@@ -47,7 +45,7 @@
   (environment-variable *env-var*))
 
 (diag "development")
-(setf (environment-variable *env-var*) "development")
+(setf (env-var *env-var*) "development")
 
 (is (getf (config :envy.myapp.config) :a) 1)
 (is (getf (config :envy.myapp.config) :b) 2)
@@ -56,7 +54,7 @@
     "Has a common configuration")
 
 (diag "production")
-(setf (environment-variable *env-var*) "production")
+(setf (env-var *env-var*) "production")
 
 (is (getf (config :envy.myapp.config) :a) 10)
 (is (getf (config :envy.myapp.config) :b) 200)
@@ -65,7 +63,7 @@
     "Has a common configuration")
 
 (diag "staging")
-(setf (environment-variable *env-var*) "staging")
+(setf (env-var *env-var*) "staging")
 
 (is (getf (config :envy.myapp.config) :a) 0
     "Can override a parent configuration")
@@ -78,5 +76,5 @@
 (finalize)
 
 (if *env-backup*
-    (setf (environment-variable *env-var*) *env-backup*)
-    (makunbound-environment-variable *env-var*))
+    (setf (env-var *env-var*) *env-backup*)
+    (remove-env-var *env-var*))
