@@ -8,9 +8,7 @@
   (:use :cl)
   (:export :config-env-var
            :defconfig
-           :config
-           :env-var
-           :remove-env-var))
+           :config))
 (in-package :envy)
 
 (defvar *config-env-map* (make-hash-table :test 'equal))
@@ -54,12 +52,3 @@
   (if key
       (getf (package-config package-name) key)
       (package-config package-name)))
-
-(defun env-var (var)
-  (osicat:environment-variable var))
-
-(defun (setf env-var) (val var)
-  (setf (osicat:environment-variable var) val))
-
-(defun remove-env-var (var)
-  (osicat:makunbound-environment-variable var))
