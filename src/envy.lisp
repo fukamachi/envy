@@ -40,13 +40,13 @@
     (let ((env (asdf::getenv env-var)))
       (if env
           (let ((symbol (find-symbol env package)))
-            (if (and symbol
-                     (get symbol 'configurationp)
-                     (boundp symbol))
-                (append (symbol-value symbol)
-                        (gethash package-name *package-common-configurations* nil))
-                nil))
-          nil))))
+            (append (if (and symbol
+                             (get symbol 'configurationp)
+                             (boundp symbol))
+                        (symbol-value symbol)
+                        nil)
+                    (gethash package-name *package-common-configurations* nil)))
+          (gethash package-name *package-common-configurations* nil)))))
 
 (defun config (package-name &optional key)
   (if key

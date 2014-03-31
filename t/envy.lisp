@@ -39,12 +39,17 @@
                 :makunbound-environment-variable))
 (in-package :envy-test)
 
-(plan 9)
+(plan 13)
 
 (defparameter *env-var* "APP_ENV")
 
 (defparameter *env-backup*
   (environment-variable *env-var*))
+
+(diag "unbound")
+(osicat:makunbound-environment-variable *env-var*)
+(is (getf (config :envy.myapp.config) :application-root) #P"/path/to/application/")
+(is (getf (config :envy.myapp.config) :a) nil)
 
 (diag "development")
 (setf (environment-variable *env-var*) "development")
@@ -74,6 +79,11 @@
 (is (getf (config :envy.myapp.config) :application-root)
     #P"/path/to/application/"
     "Has a common configuration")
+
+(diag "other environment variable")
+(setf (environment-variable *env-var*) "test")
+(is (getf (config :envy.myapp.config) :application-root) #P"/path/to/application/")
+(is (getf (config :envy.myapp.config) :a) nil)
 
 (finalize)
 
