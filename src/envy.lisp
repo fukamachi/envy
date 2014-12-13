@@ -52,3 +52,6 @@
   (if key
       (getf (package-config package-name) key)
       (package-config package-name)))
+
+(defun config* (&optional key)
+  (config (package-name *package*) key))
