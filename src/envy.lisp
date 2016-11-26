@@ -35,7 +35,7 @@
       (setf config-map (make-hash-table :test 'equal))
       (setf (gethash (ensure-package package) *package-configurations*) config-map))
 
-    (setf (gethash (princ-to-string env) config-map) configurations)))
+    (setf (gethash env config-map) configurations)))
 
 (defmacro defconfig (name configurations)
   `(progn
