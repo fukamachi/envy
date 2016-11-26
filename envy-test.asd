@@ -1,20 +1,19 @@
-#|
-  This file is a part of Envy project.
-  Copyright (c) 2013 Eitarow Fukamachi (e.arrows@gmail.com)
-|#
-
 (in-package :cl-user)
 (defpackage envy-test-asd
   (:use :cl :asdf))
 (in-package :envy-test-asd)
 
 (defsystem envy-test
-  :author "Eitarow Fukamachi"
+  :author "Eitaro Fukamachi"
   :license "BSD 2-Clause"
   :depends-on (:envy
-               :cl-test-more
-               :osicat)
+               :prove
+               :uiop)
   :components ((:module "t"
                 :components
-                ((:file "envy"))))
-  :perform (load-op :after (op c) (asdf:clear-system c)))
+                ((:test-file "envy"))))
+
+  :defsystem-depends-on (:prove-asdf)
+  :perform (test-op :after (op c)
+                    (funcall (intern #.(string :run-test-system) :prove-asdf) c)
+                    (asdf:clear-system c)))

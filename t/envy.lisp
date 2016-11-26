@@ -1,8 +1,3 @@
-#|
-  This file is a part of Envy project.
-  Copyright (c) 2013 Eitarow Fukamachi (e.arrows@gmail.com)
-|#
-
 (in-package :cl-user)
 (defpackage :envy.myapp.config
   (:use :cl)
@@ -33,10 +28,7 @@
 (defpackage envy-test
   (:use :cl
         :envy
-        :cl-test-more)
-  (:import-from :osicat
-                :environment-variable
-                :makunbound-environment-variable))
+        :cl-test-more))
 (in-package :envy-test)
 
 (plan 13)
@@ -44,15 +36,15 @@
 (defparameter *env-var* "APP_ENV")
 
 (defparameter *env-backup*
-  (environment-variable *env-var*))
+  (uiop:getenv *env-var*))
 
 (diag "unbound")
-(osicat:makunbound-environment-variable *env-var*)
+(setf (uiop:getenv *env-var*) "")
 (is (getf (config :envy.myapp.config) :application-root) #P"/path/to/application/")
 (is (getf (config :envy.myapp.config) :a) nil)
 
 (diag "development")
-(setf (environment-variable *env-var*) "development")
+(setf (uiop:getenv *env-var*) "development")
 
 (is (getf (config :envy.myapp.config) :a) 1)
 (is (getf (config :envy.myapp.config) :b) 2)
@@ -61,7 +53,7 @@
     "Has a common configuration")
 
 (diag "production")
-(setf (environment-variable *env-var*) "production")
+(setf (uiop:getenv *env-var*) "production")
 
 (is (getf (config :envy.myapp.config) :a) 10)
 (is (getf (config :envy.myapp.config) :b) 200)
@@ -70,7 +62,7 @@
     "Has a common configuration")
 
 (diag "staging")
-(setf (environment-variable *env-var*) "staging")
+(setf (uiop:getenv *env-var*) "staging")
 
 (is (getf (config :envy.myapp.config) :a) 0
     "Can override a parent configuration")
@@ -81,12 +73,10 @@
     "Has a common configuration")
 
 (diag "other environment variable")
-(setf (environment-variable *env-var*) "test")
+(setf (uiop:getenv *env-var*) "test")
 (is (getf (config :envy.myapp.config) :application-root) #P"/path/to/application/")
 (is (getf (config :envy.myapp.config) :a) nil)
 
 (finalize)
 
-(if *env-backup*
-    (setf (environment-variable *env-var*) *env-backup*)
-    (makunbound-environment-variable *env-var*))
+(setf (uiop:getenv *env-var*) (or *env-backup* ""))

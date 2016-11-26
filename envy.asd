@@ -1,20 +1,11 @@
-#|
-  This file is a part of Envy project.
-  Copyright (c) 2013 Eitarow Fukamachi (e.arrows@gmail.com)
-|#
-
-#|
-  Author: Eitarow Fukamachi (e.arrows@gmail.com)
-|#
-
 (in-package :cl-user)
 (defpackage envy-asd
   (:use :cl :asdf))
 (in-package :envy-asd)
 
 (defsystem envy
-  :version "0.1"
-  :author "Eitarow Fukamachi"
+  :version "2.0"
+  :author "Eitaro Fukamachi"
   :license "BSD 2-Clause"
   :components ((:module "src"
                 :components
@@ -32,4 +23,4 @@
                                :fill-pointer t)))
           (setf (fill-pointer seq) (read-sequence seq stream))
           seq)))
-  :in-order-to ((test-op (load-op envy-test))))
+  :in-order-to ((test-op (test-op envy-test))))

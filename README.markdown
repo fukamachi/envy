@@ -59,13 +59,13 @@ Don't forget to set `(ENVY:CONFIG-ENV-VAR)` which is a name of environment varia
 (setf (config-env-var) "APP_ENV")
 
 ;; Use SQLite3 for development
-(defconfig |development|
+(defconfig "development"
   '(:server :hunchentoot
     :database-type :sqlite3
     :database-connection-spec (:database-name "sqlite3.db")))
 
 ;; Use MySQL in production environment
-(defconfig |production|
+(defconfig "production"
   '(:server :fcgi
     :database-type :mysql
     :database-connection-spec (:database-name "test"
@@ -75,12 +75,10 @@ Don't forget to set `(ENVY:CONFIG-ENV-VAR)` which is a name of environment varia
 
 ### Merging
 
-Each configurations are represented as property lists. It means you can merge them by the default way of merging lists -- cons, append or/and splicing unquote.
-
 ```common-lisp
-(defconfig |staging|
+(defconfig "staging"
   `(:server :hunchentoot
-    ,@|production|))
+    ,@(env-config "production")))
 ```
 
 ### Common configurations
@@ -139,11 +137,11 @@ Thank cho45 for the great product. I feel envy to you :)
 
 ## Author
 
-* Eitarow Fukamachi (e.arrows@gmail.com)
+* Eitaro Fukamachi (e.arrows@gmail.com)
 
 ## Copyright
 
-Copyright (c) 2013 Eitarow Fukamachi (e.arrows@gmail.com)
+Copyright (c) 2013 Eitaro Fukamachi (e.arrows@gmail.com)
 
 # License
 

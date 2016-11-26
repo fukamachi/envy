@@ -1,57 +1,62 @@
-#|
-  This file is a part of Envy project.
-  Copyright (c) 2013 Eitarow Fukamachi (e.arrows@gmail.com)
-|#
-
 (in-package :cl-user)
 (defpackage envy
   (:use :cl)
   (:export :config-env-var
            :defconfig
-           :config))
+           :config
+           :env-config))
 (in-package :envy)
 
-(defvar *config-env-map* (make-hash-table :test 'equal))
-(defvar *package-common-configurations* (make-hash-table :test 'equal))
+(defvar *config-env-map* (make-hash-table :test 'eq))
+(defvar *package-configurations* (make-hash-table :test 'eq))
 
-(defun config-env-var (&optional (package-name (package-name *package*)))
-  (gethash (package-name (find-package package-name)) *config-env-map*))
+(defun ensure-package (package)
+  (etypecase package
+    ((or string symbol) (find-package package))
+    (package package)))
 
-(defun (setf config-env-var) (val &optional (package-name (package-name *package*)))
-  (setf (gethash (package-name (find-package package-name)) *config-env-map*) val))
+(defun config-env-var (&optional (package *package*))
+  (gethash (ensure-package package) *config-env-map*))
+
+(defun (setf config-env-var) (val &optional (package *package*))
+  (setf (gethash (ensure-package package) *config-env-map*)
+        val))
+
+(defun env-config (env &optional (package *package*))
+  (let ((config-map (gethash (ensure-package package) *package-configurations*)))
+    (if config-map
+        (append (gethash env config-map)
+                (gethash :common config-map))
+        nil)))
+
+(defun (setf env-config) (configurations env &optional (package *package*))
+  (let ((config-map (gethash (ensure-package package) *package-configurations*)))
+    (unless config-map
+      (setf config-map (make-hash-table :test 'equal))
+      (setf (gethash (ensure-package package) *package-configurations*) config-map))
+
+    (setf (gethash (princ-to-string env) config-map) configurations)))
 
 (defmacro defconfig (name configurations)
-  (if (eq name :common)
-      (let ((package-name (package-name *package*)))
-        `(setf (gethash ,package-name *package-common-configurations*)
-               ,configurations))
-      `(progn
-         (defparameter ,name ,configurations)
-         (setf (get ',name 'configurationp) t))))
+  `(progn
+     ;; for backward-compatibility.
+     ;; If the env name is a symbol, define a special variable.
+     (when (and (symbolp ',name)
+                (not (keywordp ',name)))
+       (defparameter ,name ,configurations))
+     (setf (env-config ',name) ,configurations)))
 
-(defun package-config (package-name)
-  (let* ((package (find-package package-name))
-         (package-name (package-name package))
-         (env-var (config-env-var package-name)))
+(defun config (package &optional key)
+  (let* ((package (ensure-package package))
+         (env-var (config-env-var package)))
     (unless env-var
       (error "Package \"~A\" is not configured. Set which environment variable to determine a configuration by using ~S."
-             package-name
+             (package-name package)
              'config-env-var))
-    (let ((env (asdf::getenv env-var)))
-      (if env
-          (let ((symbol (find-symbol env package)))
-            (append (if (and symbol
-                             (get symbol 'configurationp)
-                             (boundp symbol))
-                        (symbol-value symbol)
-                        nil)
-                    (gethash package-name *package-common-configurations* nil)))
-          (gethash package-name *package-common-configurations* nil)))))
-
-(defun config (package-name &optional key)
-  (if key
-      (getf (package-config package-name) key)
-      (package-config package-name)))
+    (let ((configs (env-config (asdf::getenv env-var) package)))
+      (if key
+          (getf configs key)
+          configs))))
 
 (defun config* (&optional key)
   (config (package-name *package*) key))
