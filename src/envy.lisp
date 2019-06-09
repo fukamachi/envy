@@ -50,7 +50,10 @@
 
 (defun config (package-name &optional key)
   (if key
-      (getf (package-config package-name) key)
+      (let ((c (getf (package-config package-name) key)))
+        (if (functionp c)
+            (funcall c)
+            c))
       (package-config package-name)))
 
 (defun config* (&optional key)
