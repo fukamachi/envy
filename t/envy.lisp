@@ -14,7 +14,8 @@
 (setf (config-env-var) "APP_ENV")
 
 (defconfig :common
-  `(:application-root #P"/path/to/application/"))
+  `(:application-root #P"/path/to/application/"
+    :dynamic-config ,(let ((i 0)) (lambda () (incf i)))))
 
 (defconfig |development|
   '(:a 1
@@ -39,7 +40,7 @@
                 :makunbound-environment-variable))
 (in-package :envy-test)
 
-(plan 13)
+(plan 15)
 
 (defparameter *env-var* "APP_ENV")
 
@@ -84,6 +85,13 @@
 (setf (environment-variable *env-var*) "test")
 (is (getf (config :envy.myapp.config) :application-root) #P"/path/to/application/")
 (is (getf (config :envy.myapp.config) :a) nil)
+
+(diag "dynamic config")
+(setf (environment-variable *env-var*) "development")
+(is (config :envy.myapp.config :dynamic-config) 1
+    "Can return execution-time evaled configuration")
+(is (config :envy.myapp.config :dynamic-config) 2
+    "Can return execution-time evaled configuration")
 
 (finalize)
 
