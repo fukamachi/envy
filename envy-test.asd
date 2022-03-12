@@ -12,7 +12,7 @@
   :author "Eitarow Fukamachi"
   :license "BSD 2-Clause"
   :depends-on (:envy
-               :cl-test-more
+               :prove
                :osicat)
   :components ((:module "t"
                 :components
