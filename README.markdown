@@ -41,6 +41,10 @@ Configuration switcher by an environment variable inspired by Perl's [Config::EN
 (getf (config :myapp.config) :database-type)
 ```
 
+###  Calling APP_ENV from the command line
+
+For example, `APP_ENV=development sbcl`  runs a REPL process that uses development config values.
+
 ## Description
 
 Envy is a configuration manager for various applications.
