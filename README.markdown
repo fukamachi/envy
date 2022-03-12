@@ -85,7 +85,7 @@ Each configurations are represented as property lists. It means you can merge th
 
 ### Common configurations
 
-You can also define a common configuration which will be merged into every configurations.
+You can also define a common configuration which will be used by all configurations.
 
 ```common-lisp
 (defconfig :common
